@@ -54,3 +54,9 @@ glibc-linuxthreads-2.2.3.tar.gz:
 glibc-2.2.3-mips-base-addr-got.diff:
 	wget http://www.ltc.com/~brad/mips/glibc-2.2.3-mips-base-addr-got.diff
 
+##############################
+# $Log: Makefile,v $
+# Revision 1.4  2001/12/03 22:55:12  markinho
+# revision log added
+#
+##############################
