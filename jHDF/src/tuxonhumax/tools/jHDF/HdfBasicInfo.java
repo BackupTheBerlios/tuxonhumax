@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.zip.CRC32;
 
+/**
+ * represent the common data about a Hdffile<br><br>
+ * e.g. the Filename and it's CRC32-Checksum
+ * @author  lastninja
+ */
 public class HdfBasicInfo
 {
     private CRC32 crc = null;
@@ -28,10 +33,11 @@ public class HdfBasicInfo
 		hdfFileName = fileName;
 	}
 
-	public void computeCRC()
+    /**
+     * calculates the CRC32 and fills the BasicInfo-Fields
+     */
+	public void readBasicInfo()
 	{
-		// Nur CRC32 berechnen wenn auch wirklich ein
-		// Filenamen angegeben wurde!
 		if (hdfFileName.length()==0) return;
 
         FileInputStream fis = null;
@@ -69,6 +75,20 @@ public class HdfBasicInfo
 		return crcResult;
 	}
 	
+    public String getHdfFileNameWithoutPath()
+    {
+        int posSep = hdfFileName.lastIndexOf(java.io.File.separatorChar);
+        if (posSep==-1)
+        {
+            return hdfFileName;
+        }
+        else
+        {
+            return hdfFileName.substring(posSep+1);
+        }
+            
+    }
+    
 	public String toString()
 	{
 		if(hdfFileName.length()==0) return "";
@@ -77,7 +97,7 @@ public class HdfBasicInfo
 		report.append("HDF Information File\n");
         report.append("--------------------\n\n");
 
-        report.append("HDF Filename     : " + hdfFileName + "\n");
+        report.append("HDF Filename     : " + getHdfFileNameWithoutPath() + "\n");
         report.append("CRC-32           : 0x" + new Long(0).toHexString(crcResult).toUpperCase() + "\n\n");
 
         return report.toString();
