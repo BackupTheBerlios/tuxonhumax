@@ -12,23 +12,22 @@ import java.lang.Boolean;
  * @author Ben96
  */
 public class HdfGui extends javax.swing.JFrame {
+    String hdfFileName="";
+    HdfFile hdfFile = null;
     
     /** Creates new form HdfGui */
     public HdfGui() {
-        String hdfFileName = "";
-        HdfFile hdfFile = null;
-        initComponents();
         hdfFileName = "";
         hdfFile = new HdfFile();
-    try
-    {
-      jbInit();
-    }
-    catch(Exception e)
-    {
-      e.printStackTrace();
-    }
-
+        initComponents();
+        
+        try {
+            jbInit();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        
     }
     
     /** This method is called from within the constructor to
@@ -101,13 +100,13 @@ public class HdfGui extends javax.swing.JFrame {
         int isFile = 0;
         isFile=setFileName();
         dfFileName.setText(hdfFileName);
-        if (isFile==1) 
-        {
-          computeHdfInfo();
-          printReport();
-          String sTemp="";
-          sTemp = hdfFile.toString();
-          sOutput.setText(sTemp);
+        if (isFile==1) {
+            HdfFile hdfFile = new HdfFile();
+            computeHdfInfo();
+            printReport();
+            String sTemp="";
+            sTemp = hdfFile.toString();
+            sOutput.setText(sTemp);
         }
     }//GEN-LAST:event_MnuOpenHdfActionPerformed
     
@@ -135,9 +134,9 @@ public class HdfGui extends javax.swing.JFrame {
         fd.setApproveButtonText("Open HDF-File ...");
         int returnVal = fd.showOpenDialog(null);
         fd.setVisible(true);
-        if (returnVal == fd.APPROVE_OPTION)
-        {
-            hdfFileName = fd.getCurrentDirectory().getPath()+fd.getSelectedFile().getName();
+        if (returnVal == fd.APPROVE_OPTION) {
+            hdfFileName = fd.getCurrentDirectory().getPath() +
+            java.io.File.separator + fd.getSelectedFile().getName();
             dfFileName.setText(hdfFileName);
             return 1;
         }
@@ -156,8 +155,8 @@ public class HdfGui extends javax.swing.JFrame {
     
     
     
-
-
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem mnuClose;
     private javax.swing.JTextArea sOutput;
@@ -168,13 +167,13 @@ public class HdfGui extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JMenu jMenu2;
     // End of variables declaration//GEN-END:variables
-
-    public String hdfFileName;    
-    HdfFile hdfFile     = null;
-
-  private void jbInit() throws Exception
-  {
-    MnuOpenHdf.setText("Open HDF-Datei ...");
-  }
-
+    
+    
+    
+    
+    /* HdfFile hdfFile     = null;*/
+    private void jbInit() throws Exception {
+        MnuOpenHdf.setText("Open HDF-Datei ...");
+    }
+    
 }
