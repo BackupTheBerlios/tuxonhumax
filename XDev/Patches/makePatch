@@ -1,0 +1,9 @@
+#!/bin/sh
+# Aufruf old new patchName
+#LC_ALL=C TZ=UTCO diff -Naur $1 $2 >$3.diff
+if [ $# -ne 3 ] ; then
+  echo "usage: $0 oldDirectory newDriectory diffname"
+  exit 1
+fi
+diff -Naur $1 $2 >$3.diff
+bzip2 $3.diff

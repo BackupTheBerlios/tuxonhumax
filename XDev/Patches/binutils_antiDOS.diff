@@ -1,0 +1,27 @@
+diff -Naur binutils-2.11.90.0.25/ltconfig binutils-2.11.90.0.25_p/ltconfig
+--- binutils-2.11.90.0.25/ltconfig	Sat Jun  2 06:47:06 2001
++++ binutils-2.11.90.0.25_p/ltconfig	Tue Nov 20 01:01:28 2001
+@@ -653,15 +653,15 @@
+ test -z "$objext" && objext=o
+ 
+ echo $ac_n "checking for objdir... $ac_c" 1>&6
+-rm -f .libs 2>/dev/null
+-mkdir .libs 2>/dev/null
+-if test -d .libs; then
++#rm -f .libs 2>/dev/null
++#mkdir .libs 2>/dev/null
++#if test -d .libs; then
+   objdir=.libs
+-else
+-  # MS-DOS does not allow filenames that begin with a dot.
+-  objdir=_libs
+-fi
+-rmdir .libs 2>/dev/null
++#else
++#  # MS-DOS does not allow filenames that begin with a dot.
++#  objdir=_libs
++#fi
++#rmdir .libs 2>/dev/null
+ echo "$ac_t$objdir" 1>&6
+ 
+ # If no C compiler was specified, use CC.
