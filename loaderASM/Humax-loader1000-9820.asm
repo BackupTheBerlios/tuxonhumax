@@ -12756,86 +12756,92 @@ Ab ca  hier ist	ein Zeichensatz	mit 90 Zeichen
 von '!'	bis 'z'
 jedes Zeichen besteht aus 16 Byte
 In der Funktion	ab 8C008220 werden diese Zeichen zur Ausgabe verwendet.
+# -> !
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte 0x18  #  		   XX
+		.byte 0x3C  # <		  XXXX
+		.byte 0x3C  # <		  XXXX
+		.byte 0x3C  # <		  XXXX
+		.byte 0x18  #  		   XX
+		.byte 0x18  #  		   XX
+		.byte	 0  #  		        
+		.byte 0x18  #  		   XX
+		.byte 0x18  #  		   XX
+		.byte	 0  #  		        
+		.byte	 0  #  	
+		.byte	 0  #  	
+		.byte	 0  #  	
+# -> "
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte 0x66  # f		 XX  XX
+		.byte 0x66  # f		 XX  XX
+		.byte 0x66  # f		 XX  XX
+		.byte 0x66  # f		 XX  XX
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+# -> #
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte 0x36  # 6		  XX XX
+		.byte 0x36  # 6		  XX XX
+		.byte 0x7F  # 		 XXXXXXX
+		.byte 0x36  # 6		  XX XX
+		.byte 0x36  # 6		  XX XX
+		.byte 0x36  # 6		  XX XX
+		.byte 0x7F  # 		 XXXXXXX
+		.byte 0x36  # 6		  XX XX
+		.byte 0x36  # 6		  XX XX
+		.byte	 0  #  		
 		.byte	 0  #  
 		.byte	 0  #  
 		.byte	 0  #  
-		.byte 0x18  #  
-		.byte 0x3C  # <
-		.byte 0x3C  # <
-		.byte 0x3C  # <
-		.byte 0x18  #  
-		.byte 0x18  #  
-		.byte	 0  #  
-		.byte 0x18  #  
-		.byte 0x18  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte 0x66  # f
-		.byte 0x66  # f
-		.byte 0x66  # f
-		.byte 0x66  # f
+#-> $		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte 0x18  #  		   XX
+		.byte 0x18  #  		   XX
+		.byte 0x3C  # <		  XXXX
+		.byte 0x66  # f		 XX  XX
+		.byte 0x60  # `		 XX
+		.byte 0x3C  # <		  XXXX
+		.byte	 6  #  		     XX
+		.byte 0x66  # f		 XX  XX
+		.byte 0x3C  # <		  XXXX
+		.byte 0x18  #  		   XX
+		.byte 0x18  #  		   XX
 		.byte	 0  #  
 		.byte	 0  #  
 		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte 0x36  # 6
-		.byte 0x36  # 6
-		.byte 0x7F  # 
-		.byte 0x36  # 6
-		.byte 0x36  # 6
-		.byte 0x36  # 6
-		.byte 0x7F  # 
-		.byte 0x36  # 6
-		.byte 0x36  # 6
+# -> %
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte	 0  #  		
+		.byte 0x30  # 0		  XX
+		.byte 0x7B  # {		 XXXX XX
+		.byte 0x36  # 6		  XX XX
+		.byte  0xC  #  		    XX
+		.byte 0x18  #  		   XX
+		.byte 0x36  # 6		  XX XX
+		.byte 0x6F  # o		 XX XXXX
+		.byte	 6  #  		     XX
 		.byte	 0  #  
 		.byte	 0  #  
 		.byte	 0  #  
 		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte 0x18  #  
-		.byte 0x18  #  
-		.byte 0x3C  # <
-		.byte 0x66  # f
-		.byte 0x60  # `
-		.byte 0x3C  # <
-		.byte	 6  #  
-		.byte 0x66  # f
-		.byte 0x3C  # <
-		.byte 0x18  #  
-		.byte 0x18  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte 0x30  # 0
-		.byte 0x7B  # {
-		.byte 0x36  # 6
-		.byte  0xC  #  
-		.byte 0x18  #  
-		.byte 0x36  # 6
-		.byte 0x6F  # o
-		.byte	 6  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
-		.byte	 0  #  
+# ->
 		.byte	 0  #  
 		.byte	 0  #  
 		.byte	 0  #  
