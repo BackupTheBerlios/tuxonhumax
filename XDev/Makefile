@@ -87,10 +87,14 @@ linux-2.4.5.tar.bz2:
 	tar -xjf Archives/linux-2.4.5.tar.bz2
 	mv linux linux-2.4.5
 	
-	cd linux-2.4.5 && make ARCH=mips include/linux/version.h
+	cp ../Patches/.config ../linux-2.4.5/.config
+#	ln -sf asm-mips linux-2.4.5/include/asm
 	
+	cd linux-2.4.5 && make ARCH=mips oldconfig
+	cd linux-2.4.5 && make ARCH=mips include/linux/version.h
+		
 	ln -sf ../linux-2.4.5/include/linux include/linux
-	ln -sf ../linux-2.4.5/include/asm-mips include/asm-mips
+	ln -sf ../linux-2.4.5/include/asm-mips include/asm
 	
 	touch .kernelHeader
 
@@ -115,7 +119,7 @@ glibc-2.2.3.tar.gz glibc-2.2.3-mips-base-addr-got.diff glibc-linuxthreads-2.2.3.
 		--prefix=$(XDevRoot)
 		
 	make -C mips-glibc
-	make -C mips-glibc install install_root=$(XDevRoot)/glibc-inst
+	make -C mips-glibc install
 	
 	cp -a glibc-inst/include/* include/
 	cp -a glibc-inst/lib/* lib/
