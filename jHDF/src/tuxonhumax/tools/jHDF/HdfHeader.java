@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import lha.CRC16;
 
+/**
+ * represents the Header of a HDF-File
+ * @author  lastninja
+ */
 public class HdfHeader
 {
     private RandomAccessFile hdfFile = null;
@@ -27,7 +31,8 @@ public class HdfHeader
 
     // thats the calculated Checksum: CRC16 of Header
     private int headerChecksumCalc;
-    
+
+    private int dataLengthCalc;
 	public HdfHeader()
 	{
 		hdfFileName = "";			
@@ -40,6 +45,7 @@ public class HdfHeader
 	    dataLength[0] = 0; dataLength[1] = 0; dataLength[2] = 0; dataLength[3] = 0;
         
         headerChecksumCalc = 0;
+        dataLengthCalc = 0;
 	}
     
 	public void setHdfFileName(String fileName)
@@ -56,19 +62,34 @@ public class HdfHeader
 			hdfFile = new RandomAccessFile(hdfFileName,"r");
 			
 			hdfFile.read(headerLength);
-			
-			headerChecksum[0] = hdfFile.readByte();
-			headerChecksum[1] = hdfFile.readByte();
 
-			hdfFile.read(modelType);
-			
-			hdfFile.read(numberBlocks);
-			
-			hdfFile.read(systemID1);
-			hdfFile.read(systemID2);
+            headerChecksum[0] = hdfFile.readByte();
+            headerChecksum[1] = hdfFile.readByte();
 
-			hdfFile.read(dataLength);
+            hdfFile.read(modelType);
 			
+            switch(getHeaderLength())
+            {
+                case 0x12: // 18Byte Header
+					hdfFile.read(numberBlocks);
+					
+					hdfFile.read(systemID1);
+					hdfFile.read(systemID2);
+		
+					hdfFile.read(dataLength);
+                    
+                    break;
+                 case 0x0C: //12Byte Header
+                    systemID1[2] = hdfFile.readByte();
+                    systemID1[3] = hdfFile.readByte();
+                    
+                    hdfFile.read(numberBlocks);
+                    
+                    hdfFile.read(dataLength);
+                 
+                    break;
+            }
+
             // Calculate the actual Checksum of the header
             // this value can than be compared with the given checksum (field 02h-03h)
             CRC16 actualChecksum = new CRC16();
@@ -80,6 +101,8 @@ public class HdfHeader
             actualChecksum.update(headerData,0,getHeaderLength()-2);
             
             headerChecksumCalc = (int)actualChecksum.getValue();
+            
+            dataLengthCalc = (int)hdfFile.length() - getHeaderLength();
             
  			hdfFile.close();
 		}
@@ -173,6 +196,22 @@ public class HdfHeader
         return (getHeaderChecksum()==headerChecksumCalc);
     }
 
+    public boolean isDataLengthValid()
+    {
+        return getDataLength()+2==dataLengthCalc;
+    }
+
+    public String getModelTypeName()
+    {
+        switch(getModelType())
+        {
+            case 1: return "non SuperSet";
+            case 2: return "SuperSet"; 
+            case 3: return "OAK";
+        }
+        return "unknown";
+    }
+
 	public String toString()
 	{
 		if(hdfFileName.length()==0) return "";
@@ -181,12 +220,20 @@ public class HdfHeader
         report.append("Header length    : "   + getHeaderLength() + " Bytes\n");
         report.append("Header Checksum  : 0x" + Integer.toHexString(getHeaderChecksum()).toUpperCase());
         report.append(isHeaderChecksumValid() ? " (ok)\n" : "\n");
-        report.append("Model Type       : "   + getModelType() + "\n");        
-        report.append("System ID (1)    : ("  + Integer.toHexString(getSystemID1()) + ")\n");
-        report.append("System ID (2)    : ("  + Integer.toHexString(getSystemID2()) + ")\n");        
+        report.append("Model Type       : "   + getModelType());
+        report.append(" (" + getModelTypeName() + " Model)\n");
+        if(getHeaderLength()==0x12)
+        {
+            report.append("System ID (1)    : ("  + Integer.toHexString(getSystemID1()) + ")\n");
+            report.append("System ID (2)    : ("  + Integer.toHexString(getSystemID2()) + ")\n");        
+        }
+        else
+        {
+            report.append("System ID        : ("  + Integer.toHexString(getSystemID1()) + ")\n");    
+        }
         report.append("Number of Blocks : "   + getNumberBlocks()+ "\n");
-        report.append("Data Length      : "   + getDataLength() + " Bytes\n\n");
-        
+        report.append("Data Length      : "   + getDataLength() + " Bytes");
+        report.append(isDataLengthValid() ? " (ok)\n" : "\n");        
         return report.toString();
 	}
 
