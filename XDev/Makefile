@@ -87,7 +87,7 @@ linux-2.4.5.tar.bz2:
 	tar -xjf Archives/linux-2.4.5.tar.bz2
 	mv linux linux-2.4.5
 	
-	cp ../Patches/linux-2.4.5-BaseConfig ../linux-2.4.5/.config
+	cp Patches/linux-2.4.5-BaseConfig linux-2.4.5/.config
 #	ln -sf asm-mips linux-2.4.5/include/asm
 	
 	cd linux-2.4.5 && make ARCH=mips oldconfig
