@@ -59,6 +59,12 @@ binutils-2.11.90.0.25.tar.gz:
 	make -C mips-binutils
 	make -C mips-binutils install
 	
+ifeq ( , $(findstring $(XDevRoot)/bin,$(PATH)))
+	@echo "Please Add $(XDevRoot/bin) to your PATH"
+else
+	@echo "Your PATH has been checked. And has been accepted."
+endif
+	
 	touch .binutils
 
 #
