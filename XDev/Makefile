@@ -14,11 +14,11 @@ help:
 	@echo "Following subproject can be build:"
 	@echo " fetchAll (fetch all Packets from the internet"
 	@echo " core( Compiler und glibc )"
-	@echo " .binutils	( xBinutils )"
-	@echo " .gcc1     	( xCompiler )"
+	@echo " .binutils       ( Binutils )"
+	@echo " .gcc1           ( Compiler [C] )"
 	@echo " .kernelHeader   ( Header )"
-	@echo " .glibc    	( xGlibc )"
-	@echo " .gcc2	  	( final xCompiler )"
+	@echo " .glibc          ( Glibc )"
+	@echo " .gcc2           ( final Compiler [C,C++] )"
 	@echo ""
 	@echo "Good Luck and Have FUN"
 	
@@ -129,10 +129,10 @@ glibc-2.2.3.tar.gz glibc-2.2.3-mips-base-addr-got.diff glibc-linuxthreads-2.2.3.
 		--enable-add-ons=linuxthreads
 		
 	make -C mips-glibc
-	make -C mips-glibc install_root=$(XDevRoot)/glibc-inst install
+	make -C mips-glibc install
 	
-	cp -a glibc-inst/include/* include/
-	cp -a glibc-inst/lib/* lib/
+#	cp -a glibc-inst/include/* include/
+#	cp -a glibc-inst/lib/* lib/
 	
 	touch .glibc
 
