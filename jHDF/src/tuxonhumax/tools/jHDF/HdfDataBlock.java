@@ -1,10 +1,15 @@
 package tuxonhumax.tools.jHDF;
 
 import java.io.RandomAccessFile;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import lha.CRC16;
+import lha.*;
 
+/**
+ * represent a single DataBlock in a HDF-File
+ * @author  lastninja
+ */
 public class HdfDataBlock
 {
 	// Offsets relative to the block's begin
@@ -13,7 +18,7 @@ public class HdfDataBlock
 	private int offBlockType = 4;
 	private int offBlockLength = 6;
 	private int offBlockMemoryAddress = 8;
-	private int offData = 12;
+	private int offBlockData = 12;
 	
 	private byte[] nextOffset = new byte[2];
 	private byte[] blockChecksum = new byte[2];
@@ -21,7 +26,8 @@ public class HdfDataBlock
 	private byte[] blockType = new byte[2];
 	private byte[] blockLength = new byte[2];
 	private byte[] blockMemoryAddress = new byte[4];
-	private byte[] data = null;
+    // blockData is the uncompressed data of the block
+	private byte[] blockData = null;
 
     // thats the calculated Checksum: CRC16 of the block
     private int blockChecksumCalc;
@@ -31,6 +37,9 @@ public class HdfDataBlock
     private RandomAccessFile hdfFile = null;
 	private String hdfFileName = "";
 	
+    // blockUsed: has this Datablock been used to create Bin-File
+    private boolean blockUsed;
+    
 	public HdfDataBlock()
 	{
 		nextOffset[0] = 0; nextOffset[1] = 0;
@@ -39,10 +48,12 @@ public class HdfDataBlock
 		blockType[0] = 0; blockType[1] = 0;
 		blockLength[0] = 0; blockLength[1] = 0;
 		blockMemoryAddress[0] = 0; blockMemoryAddress[1] = 0; blockMemoryAddress[2] = 0; blockMemoryAddress[3] = 0;
-		data = null;
+		blockData = null;
         
 		blockChecksumCalc = 0;
 		beginOfBlock = 0;
+        
+        blockUsed = false;
 	}
 
 	public void setHdfFileName(String fileName)
@@ -56,14 +67,14 @@ public class HdfDataBlock
 		
 		StringBuffer report = new StringBuffer();
 
-		report.append("Block (" + (blockNumber+1) + ") found at Position 0x" + new Long(0).toHexString(beginOfBlock).toUpperCase() + "\n");
-		report.append("Next Offset      : " + getNextOffset() + "\n");
-		report.append("Block Checksum   : 0x" + Integer.toHexString(getBlockChecksum()).toUpperCase());
+        report.append("\nBlock (" + (blockNumber+1) + ") found at Position 0x" +  FormatString.toHex(beginOfBlock,8) + ".\n");
+        report.append("Next Offset      : " + getNextOffset() + "\n");
+        report.append("Block Checksum   : 0x" + FormatString.toHex(getBlockChecksum(),4));
         report.append(isBlockChecksumValid() ? " (ok)\n" : "\n");
-		report.append("Block Type       : " + getBlockType());
+        report.append("Block Type       : " + getBlockType());
         report.append(isBlockCompressed() ? " (compressed)\n" : " (plain)\n");
-		report.append("Block length     : " + getBlockLength() + "\n");
-		report.append("Memory Position  : 0x" + Integer.toHexString(getBlockMemoryAddress()).toUpperCase() + "\n\n");
+        report.append("Block length     : " + getBlockLength() + " Bytes\n");
+        report.append("Memory Position  : 0x" + FormatString.toHex(getBlockMemoryAddress(),6) + "\n");
 		
 		return report.toString();
 	}
@@ -101,26 +112,50 @@ public class HdfDataBlock
             
             int crcDataEnd = beginOfBlock + getNextOffset() + 2;
             
-            byte[] blockData = new byte[crcDataEnd - crcDataStart];
+            byte[] blockHeaderData = new byte[crcDataEnd - crcDataStart];
             hdfFile.seek(crcDataStart);
-            hdfFile.read(blockData);
+            hdfFile.read(blockHeaderData);
             
             hdfFile.seek(beginOfBlock + 4);
-            hdfFile.read(blockData);
+            hdfFile.read(blockHeaderData);
             
-            actualChecksum.update(blockData,0,crcDataEnd - crcDataStart);
+            actualChecksum.update(blockHeaderData,0,crcDataEnd - crcDataStart);
             
             blockChecksumCalc = (int)actualChecksum.getValue();
             
-            /*System.out.println("start: " + Integer.toHexString(crcDataStart));
-            System.out.println("ende: " + Integer.toHexString(crcDataEnd));            
-            System.out.println("länge: " + (crcDataEnd-crcDataStart));
-            System.out.println("actual CRC: " + Integer.toHexString(blockChecksumCalc));*/
+            // Uncompressed Data with length = blockLength
+            blockData = new byte[getBlockLength()];
+            
+            if(isBlockCompressed())
+            {
+                // is only needed to feed the LhaInputstream
+                byte[] compressedBlockData = new byte[getBeginOfNextBlock()-(beginOfBlock + offBlockData)];
+
+                hdfFile.seek(beginOfBlock + offBlockData);
+                hdfFile.read(compressedBlockData);
+                
+                ByteArrayInputStream bais = new ByteArrayInputStream(compressedBlockData);
+
+                LH5Decompressor ld = new LH5Decompressor(bais, getBlockLength(),13);
+                ld.read(blockData,0,blockData.length);
+
+                ld.close();
+                bais.close();
+                java.io.File x = new java.io.File(hdfFileName + blockNumber + ".txt");
+                x.delete();
+                x = null;
+            }
+            else // read plain Data in blockData[]
+            {
+                hdfFile.seek(beginOfBlock + offBlockData);
+                hdfFile.read(blockData);
+                hdfFile.read(blockData);
+            }
             
  			hdfFile.close();
 		}
-		catch(FileNotFoundException e){}
-		catch(IOException e){}
+		catch(FileNotFoundException e){System.out.println("Error: " + e.getLocalizedMessage()); e.printStackTrace();}
+		catch(IOException e){System.out.println("Error: " + e.getLocalizedMessage());e.printStackTrace();}
 	}
 	/**
 	 * Gets the nextOffset.
@@ -183,10 +218,40 @@ public class HdfDataBlock
 		this.blockNumber = blockNumber;
 	}
 
+    /**
+     * checks if the block checksum is valid
+     * @return true if CRC16-check is okay
+     */
     public boolean isBlockChecksumValid()
     {
         return (getBlockChecksum()==blockChecksumCalc);
     }
 
+	/**
+	 * checks if this datablock has been used to generate a binfile
+	 * @return Returns true if the block has been used
+	 */
+	public boolean isBlockUsed()
+	{
+		return blockUsed;
+	}
+
+	/**
+	 * Sets the blockUsed.
+	 * @param blockUsed The blockUsed to set
+	 */
+	public void setBlockUsed(boolean blockUsed)
+	{
+		this.blockUsed = blockUsed;
+	}
+
+	/**
+	 * Gets the uncompressed blockData.
+	 * @return Returns a byte[]
+	 */
+	public byte[] getBlockData()
+	{
+		return blockData;
+	}
 }
 
