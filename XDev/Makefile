@@ -5,7 +5,7 @@
 # $LOG
 #
 #
-XDevRoot=/Humax
+XDevRoot=$(PWD)
 
 help:
 	@echo ""
@@ -14,11 +14,11 @@ help:
 	@echo "Following subproject can be build:"
 	@echo " fetchAll (fetch all Packets from the internet"
 	@echo " core( Compiler und glibc )"
-	@echo " .binutils       ( Binutils )"
-	@echo " .gcc1           ( Compiler [C] )"
-	@echo " .kernelHeader   ( Header )"
-	@echo " .glibc          ( Glibc )"
-	@echo " .gcc2           ( final Compiler [C,C++] )"
+	@echo " 	.binutils       ( Binutils )"
+	@echo " 	.gcc1           ( Compiler [C] )"
+	@echo " 	.kernelHeader   ( Header )"
+	@echo " 	.glibc          ( Glibc )"
+	@echo " 	.gcc2           ( final Compiler [C,C++] )"
 	@echo ""
 	@echo "Good Luck and Have FUN"
 	
@@ -35,6 +35,15 @@ fetchAll:
 	
 
 core: $(core)
+
+
+checkPATH:
+ifeq ( , $(findstring $(XDevRoot)/bin,$(PATH)))
+	@echo "Please Add >>$(XDevRoot)/bin<< to your PATH"
+	@exit 1;
+else
+	@echo "PATH OK!"
+endif
 
 #
 # binutils
@@ -59,12 +68,6 @@ binutils-2.11.90.0.25.tar.gz:
 	make -C mips-binutils
 	make -C mips-binutils install
 	
-ifeq ( , $(findstring $(XDevRoot)/bin,$(PATH)))
-	@echo "Please Add $(XDevRoot/bin) to your PATH"
-else
-	@echo "Your PATH has been checked. And has been accepted."
-endif
-	
 	touch .binutils
 
 #
@@ -73,7 +76,8 @@ endif
 gcc-3.0.1.tar.gz:
 	make -C Archives $@
 
-.gcc1: gcc-3.0.1.tar.gz
+.gcc1: checkPATH .binutils \
+	gcc-3.0.1.tar.gz
 	tar -xzf Archives/gcc-3.0.1.tar.gz
 	
 	mkdir mips-gcc1
@@ -115,7 +119,7 @@ linux-2.4.5.tar.bz2:
 glibc-2.2.3.tar.gz glibc-2.2.3-mips-base-addr-got.diff glibc-linuxthreads-2.2.3.tar.gz:
 	make -C Archives $@
 
-.glibc: glibc-2.2.3.tar.gz glibc-2.2.3-mips-base-addr-got.diff \
+.glibc: checkPATH glibc-2.2.3.tar.gz glibc-2.2.3-mips-base-addr-got.diff \
 		glibc-linuxthreads-2.2.3.tar.gz 
 	tar -xzf Archives/glibc-2.2.3.tar.gz
 	
@@ -142,7 +146,7 @@ glibc-2.2.3.tar.gz glibc-2.2.3-mips-base-addr-got.diff glibc-linuxthreads-2.2.3.
 #
 # GCC - 2nd pass
 #
-.gcc2: 
+.gcc2: checkPATH
 	mkdir mips-gcc2
 	cd mips-gcc2 && ../gcc-3.0.1/configure \
 		--target=mips-linux \
