@@ -26,8 +26,9 @@ all: xDevKit_Host xDevKit_Cross
 
 # Host Part
 # Kernel
-linux-2.4.5.tar.bz2:
-	wget ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.5.tar.bz2
+linux-2.4.%.tar.bz2:
+	wget ftp://ftp.kernel.org/pub/linux/kernel/v2.4/$@ || \
+	wget ftp://tuxonhumax.berlios.de/pub/tuxonhumax/$@
 
 # binutils
 binutils-2.11.90.0.25.tar.gz:	
